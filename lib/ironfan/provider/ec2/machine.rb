@@ -182,14 +182,14 @@ module Ironfan
           end
 
           # tag the computer correctly
-          tags = {
+          tags = computer.server.cloud(:ec2).tags.merge({
             'cluster' =>      computer.server.cluster_name,
             'facet' =>        computer.server.facet_name,
             'index' =>        computer.server.index,
             'name' =>         computer.name,
             'Name' =>         computer.name,
             'creator' =>      Chef::Config.username
-          }
+          })
           Ec2.ensure_tags(tags, computer.machine)
 
           # register the new volumes for later save!, and tag appropriately

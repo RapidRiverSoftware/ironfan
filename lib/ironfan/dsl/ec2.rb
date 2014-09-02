@@ -33,6 +33,7 @@ module Ironfan
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
+      magic :tags,                      String,         :default => {}
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
@@ -91,6 +92,7 @@ module Ironfan
         end
         return result unless (mount_ephemerals and (flavor_info[:ephemeral_volumes] > 0))
 
+        t = tags
         layout = {  0 => ['/dev/sdb','/mnt'],
                     1 => ['/dev/sdc','/mnt2'],
                     2 => ['/dev/sdd','/mnt3'],
@@ -103,7 +105,7 @@ module Ironfan
             device              dev
             mount_point         mnt
             mount_options       'defaults,noatime'
-            tags({:bulk => true, :local => true, :fallback => true})
+            tags(t.merge({:bulk => true, :local => true, :fallback => true}))
           end
           ephemeral_attrs = mount_ephemerals.clone
           if ephemeral_attrs.has_key?(:disks)
